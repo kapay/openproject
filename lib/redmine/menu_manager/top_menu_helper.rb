@@ -179,6 +179,11 @@ module Redmine::MenuManager::TopMenuHelper
           items_for_more_level << item
         end
       end
+      
+      menu_items_for(:real_top_menu) do |item|
+        items_for_main_level << item
+      end
+     
       @top_menu_split = {
         :main => items_for_main_level,
         :more => items_for_more_level,
