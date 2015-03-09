@@ -162,6 +162,66 @@ module WorkPackagesHelper
             end.html_safe
   end
 
+  #.art. begin 20150307.
+  # Added functions to support additional 'magic links'
+  def work_package_quick_info_startdate(work_package)
+    work_package.start_date.to_s
+  end
+
+  def work_package_quick_info_duedate(work_package)
+    work_package.due_date.to_s
+  end
+
+  def work_package_quick_info_desc(work_package)
+    description = empty_element_tag
+    unless work_package.description.blank?
+      description = format_text(work_package.description)
+    end
+    link = content_tag(:div, description, :class => 'quick_info description')
+    link
+  end
+
+  def work_package_quick_info_id(work_package)
+    link = link_to_work_package(work_package, :subject => false)
+  end
+
+  def work_package_quick_info_status(work_package)
+    #if work_package.status
+      work_package.status.to_s.upcase 
+      #"#{h(work_package.status)}"
+    #else
+     # "".to_s.upcase 
+      #""
+    #end
+  end
+
+  def work_package_quick_info_custom_field(work_package, custom_field_id)
+
+    #link = custom_field_id
+    #work_package.custom_field_values.each_with_object([]) do |v, a|
+     # a << v.custom_field.name + "custom_field cf_#{v.custom_field_id}" + 
+     #   (v.value.blank? ? empty_element_tag : simple_format_without_paragraph(h(show_value(v))))
+    #end.to_s
+ 
+    #link
+    value = work_package.custom_field_values.find do |v|
+      v.custom_field_id.to_s == custom_field_id
+    end
+
+    if value 
+      show_value(value)
+    end
+    #if value
+    #  link = value.value.blank? ? empty_element_tag : simple_format_without_paragraph(h(show_value(value)))
+    #end 
+    # if work_package.custom_field_values.has_key?(custom_field_id)
+    #   link = work_package.custom_field_values(custom_field_id)
+    # else
+    #   empty_element_tag
+    # end
+  end
+  #.art. end.
+
   def work_package_quick_info(work_package)
     changed_dates = {}
 

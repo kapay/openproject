@@ -265,7 +265,11 @@ module OpenProject
     #     identifier:version:1.0.0
     #     identifier:source:some/file
     def parse_redmine_links(text, project, obj, attr, only_path, options)
-      text.gsub!(%r{([\s\(,\-\[\>]|^)(!)?(([a-z0-9\-_]+):)?(attachment|version|commit|source|export|message|project)?((#+|r)(\d+)|(:)([^"\s<>][^\s<>]*?|"[^"]+?"))(?=(?=[[:punct:]]\W)|,|\s|\]|<|$)}) do |m|
+      #.art. begin 20150307.
+      # updated regex to support more 'magic links' of work packages
+      # text.gsub!(%r{([\s\(,\-\[\>]|^)(!)?(([a-z0-9\-_]+):)?(attachment|version|commit|source|export|message|project)?((#+|r)(\d+)|(:)([^"\s<>][^\s<>]*?|"[^"]+?"))(?=(?=[[:punct:]]\W)|,|\s|\]|<|$)}) do |m|
+      text.gsub!(%r{([\s\(,\-\[\>]|^)(!)?(([a-z0-9\-_]+):)?(wp\.cf\d+|wp\.id|wp\.subject|wp\.desc|wp\.start|wp\.due|wp\.status|attachment|version|commit|source|export|message|project)?((#+|r)(\d+)|(:)([^"\s<>][^\s<>]*?|"[^"]+?"))(?=(?=[[:punct:]]\W)|,|\s|\]|<|$)}) do |m|
+      #.art. end.
         leading, esc, project_prefix, project_identifier, prefix, sep, identifier = $1, $2, $3, $4, $5, $7 || $9, $8 || $10
         link = nil
         if project_identifier
@@ -301,6 +305,39 @@ module OpenProject
               if p = Project.visible.find_by_id(oid)
                 link = link_to_project(p, {:only_path => only_path}, :class => 'project')
               end
+            #.art. begin 20150307.
+            # Added to support additional 'magic link' options
+            when /^wp\.cf(\d+)$/
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                link = work_package_quick_info_custom_field(work_package, $1)
+                # link = work_package.custom_field_values.to_s 
+              end
+            when 'wp.id'
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                link = work_package_quick_info_id(work_package)
+              end
+            when 'wp.subject'
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                #link = work_package_quick_info_title(work_package)
+                link = work_package.subject
+              end
+            when 'wp.desc'
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                link = work_package_quick_info_desc(work_package)
+              end
+            when 'wp.start'
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                link = work_package_quick_info_startdate(work_package)
+              end
+            when 'wp.due'
+              if work_package = WorkPackage.visible.find_by_id(oid)
+                link = work_package_quick_info_duedate(work_package)
+              end
+            when 'wp.status'
+              if work_package = WorkPackage.visible.find_by_id(oid, :include => :status)
+                link = work_package_quick_info_status(work_package)
+              end
+            #.art. end.
             end
           elsif sep == '##'
             oid = identifier.to_i
