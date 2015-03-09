@@ -118,6 +118,7 @@ module API
                        .new(type: 'Duration',
                             name: WorkPackage.human_attribute_name(:estimated_time))
                      representer.writable = represented.estimated_time_writable?
+                     representer.required = false
                      representer
                    end
 
