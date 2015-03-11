@@ -147,6 +147,39 @@ module Redmine::MenuManager::MenuHelper
     end
   end
 
+  def render_drop_down_real_top_menu_node(node, project=nil)
+    return "" if project and not allowed_node?(node, User.current, project)
+    if node.has_children? || !node.child_menus.nil?
+      render_drop_down_real_top_menu_node_with_children(node, project)
+    else
+      caption, url, selected = extract_node_details(node, project)
+      content_tag('li', render_single_menu_node(node, caption, url, selected))
+    end
+  end
+
+  def render_drop_down_real_top_menu_node_with_children(node, project=nil)
+    caption, url, selected = extract_node_details(node, project)
+
+    content_tag :li, :class => "drop-down" do
+      # Standard children
+      standard_children_list = node.children.collect do |child|
+                                 render_menu_node(child, project)
+                               end.join.html_safe
+
+      # Unattached children
+      unattached_children_list = render_unattached_children_menu(node, project)
+
+      # Parent
+      node = [render_single_menu_node(node, caption, url, selected)]
+
+      # add children
+      node << content_tag(:ul, standard_children_list, :class => 'menu-children') unless standard_children_list.empty?
+      node << content_tag(:ul, unattached_children_list, :class => 'menu-children unattached') unless unattached_children_list.blank?
+
+      node.join("\n").html_safe
+    end
+  end
+
   def render_menu_node(node, project=nil)
     return "" if project and not allowed_node?(node, User.current, project)
     if node.has_children? || !node.child_menus.nil?
