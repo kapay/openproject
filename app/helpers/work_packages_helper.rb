@@ -209,7 +209,7 @@ module WorkPackagesHelper
     end
 
     if value 
-      show_value(value)
+      format_text(show_value(value))
     end
     #if value
     #  link = value.value.blank? ? empty_element_tag : simple_format_without_paragraph(h(show_value(value)))
@@ -657,7 +657,14 @@ module WorkPackagesHelper
                                        "custom_field cf_#{v.custom_field_id}",
                                        v.custom_field.name_locale,
                                        v.custom_field.default_value_locale) do
-        v.value.blank? ? empty_element_tag : simple_format_without_paragraph(h(show_value(v)))
+        # v.value.blank? ? empty_element_tag : simple_format_without_paragraph(h(show_value(v)))
+        if v.value.blank?
+          empty_element_tag 
+        else
+          # s = "<div id=\"custom-field-value-content\" class=\"wiki wikicontent\">" + show_value(v) + "</div>"
+          s = "<div id=\"custom-field-value-content\" class=\"wiki wikicontent\">" + format_text(show_value(v)) + "</div>"
+          s.html_safe
+        end
       end
     end
   end
