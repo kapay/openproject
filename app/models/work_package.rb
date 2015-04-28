@@ -1042,7 +1042,7 @@ class WorkPackage < ActiveRecord::Base
                                               where
                                                 i.status_id=s.id
                                                 and #{where}
-                                                and i.project_id IN (#{project.descendants.active.collect{|p| p.id}.join(',')})
+                                                and i.project_id IN (#{project.id}, #{project.descendants.active.collect{|p| p.id}.join(',')})
                                               group by s.id, s.is_closed, j.id")
   end
   private_class_method :count_and_group_by
